@@ -1,0 +1,26 @@
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+.mirror-container video {
+  border: 4px solid #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.message {
+  margin-top: 1rem;
+  font-size: 1.25rem;
+  color: #333;
+}
+.reset-btn {
+  margin-top: .5rem;
+}
+@media (max-width: 600px) {
+  video { width: 100%; height: auto; }
+  .message { font-size: 1rem; }
+  .reset-btn { padding: .5rem 1rem; }
+}

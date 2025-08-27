@@ -9,22 +9,31 @@ const WEIGHTS_URL =
 const compliments = [
     "That smile lights up my world!",
     "You make every day brighter ❤️",
-    "Remember our first sunset together?",
-    "I love the way you laugh!"
+    "You are the smile behind my happiest moments",
+    "I love the way you laugh!",
+    "You are my calm place in a noisy world",
+    "You are more beautiful than you'll ever know"
 ];
 
 const voiceNotes = [
-    'dummy-29502.mp3',
-    'dummy-laugh-voiced-54997.mp3',
-    'insects-69446.mp3',
-    'thud-82914.mp3'
+    'happy_birthday - isolated.mp3',
+    'keep_smiling.mp3',
+    'damn_smile - isolated.mp3',
+    'look_fab - isolated.mp3',
+    'stop_smiling.mp3',
+    'conclusion  - isolated.mp3'
 ];
+
+// ✅ extra thud sound file
+const thudSound = 'thud.mp3';
 
 export default function SmileMirror() {
     const videoRef = useRef();
     const audioRef = useRef(new Audio());
     const intervalRef = useRef(null);
+
     const [message, setMessage] = useState('Smile at the camera 😊');
+    const [noteIndex, setNoteIndex] = useState(0); // track which voice note is next
 
     useEffect(() => {
         Promise.all([
@@ -62,10 +71,30 @@ export default function SmileMirror() {
 
     function triggerSurprise() {
         confetti({ particleCount: 150, spread: 60 });
-        const note = voiceNotes[Math.floor(Math.random() * voiceNotes.length)];
-        audioRef.current.src = `/${note}`;
-        audioRef.current.play();
 
+        // ✅ Play thud first
+        const thud = new Audio(`/${thudSound}`);
+        thud.play();
+
+        thud.onended = () => {
+            setNoteIndex((prev) => {
+                let nextIndex = prev;
+
+                if (prev < voiceNotes.length) {
+                    const note = voiceNotes[prev];
+                    audioRef.current.src = `/${note}`;
+                    audioRef.current.play();
+                    nextIndex = prev + 1;
+                } else {
+                    // loop back if all notes are done
+                    nextIndex = 0;
+                }
+
+                return nextIndex;
+            });
+        };
+
+        // Compliment rotation
         let remaining = JSON.parse(localStorage.getItem('remainingCompliments') || '[]');
         if (remaining.length === 0) {
             remaining = [...compliments];
@@ -89,7 +118,11 @@ export default function SmileMirror() {
         audioRef.current.currentTime = 0;
         setMessage('Smile at the camera 😊');
         clearInterval(intervalRef.current);
+
+        // ✅ Reset compliments + voice index
         localStorage.removeItem('remainingCompliments');
+        setNoteIndex(0);
+
         handlePlay();
     }
 
@@ -130,6 +163,10 @@ export default function SmileMirror() {
                     <GrPowerReset size={18} /> Reset
                 </button>
             </div>
+
+            <footer className="mt-12 text-sm text-gray-600">
+                Made with ❤️ by <span className="font-semibold text-pink-600">🦉</span>
+            </footer>
         </div>
     );
 }
